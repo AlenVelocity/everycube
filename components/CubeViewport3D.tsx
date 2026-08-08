@@ -61,13 +61,15 @@ function easeInOutCubic(t: number): number {
   return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 }
 
-// Bigger index jumps get slower, more deliberate animations: scroll
-// ticks stay snappy, ruler drags across the space read as a full
-// rearrangement instead of a blink.
+// With FX off there's no animation at all — pieces snap straight to
+// their new pose, same as a plain color change. With FX on, bigger
+// index jumps get slower, more deliberate animations: scroll ticks stay
+// snappy, ruler drags across the space read as a full rearrangement.
 function durationFor(delta: bigint, fxOn: boolean): number {
-  if (delta < 10_000n) return fxOn ? 0.45 : 0.16;
-  if (delta < 1_000_000_000n) return fxOn ? 0.75 : 0.45;
-  return fxOn ? 1.2 : 0.75;
+  if (!fxOn) return 0;
+  if (delta < 10_000n) return 0.45;
+  if (delta < 1_000_000_000n) return 0.75;
+  return 1.2;
 }
 
 interface AnimState {
@@ -142,7 +144,8 @@ function Cubies({ n, fx }: { n: bigint; fx: boolean }) {
       // Every changing piece clears the cube before turning/travelling:
       // in-place rotators pop out ~0.9 (a rotating cubie sweeps ~0.34
       // beyond its cell), travellers arc farther the longer the trip.
-      a.liftAmp[i] = changed[i] ? Math.min(0.9 + 0.35 * dist, 2.2) : 0;
+      // No arc at all with FX off — that mode has no motion to clip.
+      a.liftAmp[i] = fxOn && changed[i] ? Math.min(0.9 + 0.35 * dist, 2.2) : 0;
     }
     a.dur = durationFor(delta, fxOn);
     a.t = 0;
@@ -163,7 +166,7 @@ function Cubies({ n, fx }: { n: bigint; fx: boolean }) {
       }
       return;
     }
-    a.t = Math.min(1, a.t + dt / a.dur);
+    a.t = a.dur <= 0 ? 1 : Math.min(1, a.t + dt / a.dur);
     const e = easeInOutCubic(a.t);
     const arc = Math.sin(Math.PI * a.t);
     for (let i = 0; i < NUM_CUBIES; i++) {
@@ -229,6 +232,9 @@ export default function CubeViewport3D({
         enableDamping
         dampingFactor={0.08}
         rotateSpeed={0.7}
+        // One-finger touch is reserved for scrolling through permutations
+        // (useScrollIndex); only a two-finger drag rotates the cube.
+        touches={{ ONE: undefined as unknown as THREE.TOUCH, TWO: THREE.TOUCH.ROTATE }}
       />
     </Canvas>
   );

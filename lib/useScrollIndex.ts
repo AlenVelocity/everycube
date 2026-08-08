@@ -3,13 +3,21 @@
 import { useEffect, type RefObject } from "react";
 import { clampIndex } from "./cubeMath";
 
-// One wheel notch (~120px of deltaY) moves n by exactly `step`
-// permutations. Sub-notch trackpad deltas accumulate so nothing is lost.
+// One wheel notch (~120px of deltaY), or 120px of one-finger touch drag,
+// moves n by exactly `step` permutations. Sub-notch deltas accumulate so
+// nothing is lost.
 const NOTCH_PX = 120;
 
-// Wheel (and two-finger touch drag) on the viewport drives n directly;
-// the page itself never scrolls. One-finger drag is left alone so
-// OrbitControls can rotate the cube.
+function isInteractiveTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof Element)) return false;
+  return !!target.closest("input, button, a, [role='slider']");
+}
+
+// Wheel on desktop, and a one-finger drag on touch devices, drive n
+// directly; the page itself never scrolls. A two-finger touch is left
+// alone so OrbitControls can rotate the cube. Touches starting on the
+// floating chrome (slider, buttons, counter) are ignored so dragging
+// those doesn't also move n.
 export function useScrollIndex(
   ref: RefObject<HTMLElement>,
   onDelta: (update: (n: bigint) => bigint) => void,
@@ -34,33 +42,37 @@ export function useScrollIndex(
       apply(e.deltaY * scale);
     };
 
-    let lastTouchY: number | null = null;
+    let dragging = false;
+    let lastTouchY = 0;
     const onTouchStart = (e: TouchEvent) => {
-      lastTouchY =
-        e.touches.length === 2
-          ? (e.touches[0].clientY + e.touches[1].clientY) / 2
-          : null;
+      dragging = e.touches.length === 1 && !isInteractiveTarget(e.target);
+      if (dragging) lastTouchY = e.touches[0].clientY;
     };
     const onTouchMove = (e: TouchEvent) => {
-      if (e.touches.length !== 2 || lastTouchY === null) return;
+      if (!dragging || e.touches.length !== 1) {
+        dragging = false;
+        return;
+      }
       e.preventDefault();
-      const y = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+      const y = e.touches[0].clientY;
       apply(lastTouchY - y);
       lastTouchY = y;
     };
     const onTouchEnd = () => {
-      lastTouchY = null;
+      dragging = false;
     };
 
     el.addEventListener("wheel", onWheel, { passive: false });
     el.addEventListener("touchstart", onTouchStart, { passive: true });
     el.addEventListener("touchmove", onTouchMove, { passive: false });
     el.addEventListener("touchend", onTouchEnd, { passive: true });
+    el.addEventListener("touchcancel", onTouchEnd, { passive: true });
     return () => {
       el.removeEventListener("wheel", onWheel);
       el.removeEventListener("touchstart", onTouchStart);
       el.removeEventListener("touchmove", onTouchMove);
       el.removeEventListener("touchend", onTouchEnd);
+      el.removeEventListener("touchcancel", onTouchEnd);
     };
   }, [ref, onDelta, step]);
 }
