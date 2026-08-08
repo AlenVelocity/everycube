@@ -14,6 +14,15 @@ import {
   unrankEdgePerm,
 } from "../lib/cubeMath";
 import { stickersForIndex } from "../lib/cubeState";
+import {
+  CUBIE_STICKERS,
+  FACE_NORMAL,
+  NUM_CUBIES,
+  applyMat,
+  cubiePlacements,
+  det3,
+  faceletToCubie,
+} from "../lib/cubiePlacement";
 
 let failures = 0;
 function check(name: string, ok: boolean, detail?: string) {
@@ -97,6 +106,40 @@ for (let t = 0; t < 500; t++) {
     for (const i of cornerStickers) if (f[i] !== solved[i]) ok = false;
   }
   check("eo-zone-corners-untouched", ok);
+}
+
+// 7. Physical cubie placements are proper rotations and reproduce the
+// facelet colors exactly (3D piece view ≡ 2D facelet view).
+{
+  const reverse = new Map<string, number>();
+  for (let i = 0; i < 54; i++) {
+    const { pos, face } = faceletToCubie(i);
+    reverse.set(`${pos.join(",")}|${face}`, i);
+  }
+  outer: for (let t = 0; t < 500; t++) {
+    const n = t === 0 ? 0n : randomIndex();
+    const expected = stickersForIndex(n);
+    const placements = cubiePlacements(n);
+    const got = new Uint8Array(54).fill(255);
+    for (let id = 0; id < NUM_CUBIES; id++) {
+      const { position, rotation } = placements[id];
+      check("rotation-proper", det3(rotation) === 1, `n=${n} cubie=${id}`);
+      for (const st of CUBIE_STICKERS[id]) {
+        const world = applyMat(rotation, st.normal);
+        const face = FACE_NORMAL.findIndex(
+          (f) => f[0] === world[0] && f[1] === world[1] && f[2] === world[2]
+        );
+        const facelet = reverse.get(`${position.join(",")}|${face}`);
+        check("sticker-on-surface", facelet !== undefined, `n=${n} cubie=${id}`);
+        if (facelet === undefined) break outer;
+        got[facelet] = st.face;
+      }
+    }
+    let same = true;
+    for (let i = 0; i < 54; i++) if (got[i] !== expected[i]) same = false;
+    check("cubie-facelet-equivalence", same, `n=${n}`);
+    if (failures) break;
+  }
 }
 
 if (failures === 0) console.log("All math tests passed.");
