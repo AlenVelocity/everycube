@@ -46,12 +46,19 @@ function toQuaternion(m: Mat3): THREE.Quaternion {
 // Keep the whole cube in frame at any viewport aspect: the camera's
 // distance from the origin grows as the viewport narrows.
 const BASE_DISTANCE = 9.2; // fits the cube's bounding sphere at fov 32
+// On wide (desktop) viewports the cube otherwise dominates the whole
+// screen; back the camera off further there. Mobile framing is untouched.
+const DESKTOP_BREAKPOINT = 640; // matches the sm: layout switch
+const DESKTOP_SCALE = 1.35;
 
 function FitCamera() {
   const { camera, size } = useThree();
   useEffect(() => {
     const aspect = size.width / size.height;
-    camera.position.setLength(BASE_DISTANCE * Math.max(1, 1 / aspect));
+    const desktopScale = size.width >= DESKTOP_BREAKPOINT ? DESKTOP_SCALE : 1;
+    camera.position.setLength(
+      BASE_DISTANCE * Math.max(1, 1 / aspect) * desktopScale
+    );
     camera.updateProjectionMatrix();
   }, [camera, size]);
   return null;

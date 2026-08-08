@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Credits from "@/components/Credits";
 import CubeViewport2D from "@/components/CubeViewport2D";
 import FxToggle from "@/components/FxToggle";
 import PermutationCounter from "@/components/PermutationCounter";
@@ -75,6 +76,7 @@ export default function Page() {
           and the toggles never compete for the same row. */}
       <div className="absolute left-4 right-4 top-4 flex flex-col items-start gap-2 sm:hidden">
         <PermutationCounter n={n} onCommit={setN} />
+        <Credits />
         <div className="flex flex-wrap items-center gap-1.5">
           <FxToggle on={fx} onChange={setFx} />
           <ViewToggle view={view} onChange={setView} />
@@ -83,8 +85,9 @@ export default function Page() {
       </div>
 
       {/* Desktop/tablet: original left counter / right controls split. */}
-      <div className="hidden sm:block sm:absolute sm:left-8 sm:top-7">
+      <div className="hidden sm:flex sm:absolute sm:left-8 sm:top-7 sm:flex-col sm:items-start sm:gap-2">
         <PermutationCounter n={n} onCommit={setN} />
+        <Credits />
       </div>
 
       <div className="hidden sm:flex sm:absolute sm:right-8 sm:top-7 sm:flex-col sm:items-end sm:gap-2">
