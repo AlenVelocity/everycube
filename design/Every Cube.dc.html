@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;padding:0;}
+  * { box-sizing: border-box; font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 18px; height: 18px; border-radius: 9999px;
+    background: #fff; border: 2px solid #18181b; cursor: pointer;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 18px; height: 18px; border-radius: 9999px;
+    background: #fff; border: 2px solid #18181b; cursor: pointer;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+  }
+  input[type="range"]::-moz-range-track { background: transparent; }
+</style>
+</helmet>
+
+<div style="background:#fafafa;min-height:100vh;padding:56px 24px;display:flex;flex-direction:column;align-items:center;gap:48px;">
+
+  <div style="width:100%;max-width:1040px;">
+    <div style="font-size:13px;color:#71717a;margin-bottom:12px;">Desktop — 2D/3D toggle is live</div>
+    <div style="{{ shellStyle }}">
+
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:24px 24px 0;">
+        <div>
+          <div style="font-size:11px;font-weight:600;letter-spacing:0.06em;color:#a1a1aa;text-transform:uppercase;margin-bottom:4px;">Permutation</div>
+          <div style="font-size:30px;font-weight:700;letter-spacing:-0.01em;font-variant-numeric:tabular-nums;color:#18181b;">#{{ counterText }}</div>
+        </div>
+        <div style="{{ toggleGroupStyle }}">
+          <button onClick="{{ setView2D }}" style="{{ toggle2DStyle }}">2D</button>
+          <button onClick="{{ setView3D }}" style="{{ toggle3DStyle }}">3D</button>
+        </div>
+      </div>
+
+      <div style="height:400px;display:flex;align-items:center;justify-content:center;padding:24px;">
+        <sc-if value="{{ isView3D }}" hint-placeholder-val="{{ true }}">
+          <div style="perspective:1400px;">
+            <div style="{{ cube3DStyle }}">
+              <div style="{{ face3DStyle_U }}">
+                <sc-for list="{{ stickersU }}" as="s" hint-placeholder-count="9">
+                  <div style="{{ s.style }}"></div>
+                </sc-for>
+              </div>
+              <div style="{{ face3DStyle_F }}">
+                <sc-for list="{{ stickersF }}" as="s" hint-placeholder-count="9">
+                  <div style="{{ s.style }}"></div>
+                </sc-for>
+              </div>
+              <div style="{{ face3DStyle_R }}">
+                <sc-for list="{{ stickersR }}" as="s" hint-placeholder-count="9">
+                  <div style="{{ s.style }}"></div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ isView2D }}" hint-placeholder-val="{{ false }}">
+          <div style="{{ netStyle }}">
+            <div style="{{ netFaceStyle_U }}">
+              <sc-for list="{{ stickersU }}" as="s" hint-placeholder-count="9"><div style="{{ s.style }}"></div></sc-for>
+            </div>
+            <div style="{{ netFaceStyle_L }}">
+              <sc-for list="{{ stickersL }}" as="s" hint-placeholder-count="9"><div style="{{ s.style }}"></div></sc-for>
+            </div>
+            <div style="{{ netFaceStyle_F }}">
+              <sc-for list="{{ stickersF }}" as="s" hint-placeholder-count="9"><div style="{{ s.style }}"></div></sc-for>
+            </div>
+            <div style="{{ netFaceStyle_R }}">
+              <sc-for list="{{ stickersR }}" as="s" hint-placeholder-count="9"><div style="{{ s.style }}"></div></sc-for>
+            </div>
+            <div style="{{ netFaceStyle_B }}">
+              <sc-for list="{{ stickersB }}" as="s" hint-placeholder-count="9"><div style="{{ s.style }}"></div></sc-for>
+            </div>
+            <div style="{{ netFaceStyle_D }}">
+              <sc-for list="{{ stickersD }}" as="s" hint-placeholder-count="9"><div style="{{ s.style }}"></div></sc-for>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+
+    </div>
+
+    <div style="{{ rulerWrapStyle }}">
+      <input type="range" min="0" max="1000" value="{{ sliderVal }}" onChange="{{ onSlider }}" style="{{ sliderStyle }}" />
+    </div>
+  </div>
+
+  <div style="width:100%;max-width:1040px;">
+    <div style="font-size:13px;color:#71717a;margin-bottom:12px;">Mobile — same chrome, stacked</div>
+    <div style="transform:scale(0.92);transform-origin:top left;">
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" title="Every Cube" hint-size="320,660">
+        <div style="background:#fff;color:#18181b;height:100%;display:flex;flex-direction:column;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 16px 0;">
+            <div>
+              <div style="font-size:10px;font-weight:600;letter-spacing:0.06em;color:#a1a1aa;text-transform:uppercase;">Permutation</div>
+              <div style="font-size:18px;font-weight:700;font-variant-numeric:tabular-nums;">#48,392,017</div>
+            </div>
+            <div style="{{ mobileToggleGroupStyle }}">
+              <span style="{{ mobileToggle2DStyle }}">2D</span>
+              <span style="{{ mobileToggle3DStyle }}">3D</span>
+            </div>
+          </div>
+          <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:16px;">
+            <div style="perspective:900px;">
+              <div style="{{ mobileCube3DStyle }}">
+                <div style="{{ mobileFace3DStyle_U }}">
+                  <sc-for list="{{ stickersU }}" as="s" hint-placeholder-count="9"><div style="{{ s.style }}"></div></sc-for>
+                </div>
+                <div style="{{ mobileFace3DStyle_F }}">
+                  <sc-for list="{{ stickersF }}" as="s" hint-placeholder-count="9"><div style="{{ s.style }}"></div></sc-for>
+                </div>
+                <div style="{{ mobileFace3DStyle_R }}">
+                  <sc-for list="{{ stickersR }}" as="s" hint-placeholder-count="9"><div style="{{ s.style }}"></div></sc-for>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="{{ mobileRulerWrapStyle }}">
+            <input type="range" min="0" max="1000" value="140" readOnly="{{ true }}" style="{{ mobileSliderStyle }}" />
+          </div>
+        </div>
+      </x-import>
+    </div>
+  </div>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const W='#f5f4ef', Y='#ffd500', RD='#b71234', OR='#ff5800', BL='#0046ad', GR='#009b48';
+
+function stickerStyle(color, borderColor){
+  return { background: color, border: '1px solid ' + borderColor, borderRadius: '3px' };
+}
+
+function faceArray(base, overrides, borderColor){
+  const arr = new Array(9).fill(base);
+  Object.keys(overrides || {}).forEach(i => arr[i] = overrides[i]);
+  return arr.map(c => ({ style: stickerStyle(c, borderColor) }));
+}
+
+class Component extends DCLogic {
+  state = { view: '3D', slider: 140 };
+
+  renderVals() {
+    const fg = '#18181b';
+    const gapColor = '#e4e4e7';
+    const isView3D = this.state.view === '3D';
+    const isView2D = !isView3D;
+
+    const stickersU = faceArray(W, { 1: GR }, gapColor);
+    const stickersF = faceArray(GR, { 7: W }, gapColor);
+    const stickersR = faceArray(RD, { 2: OR }, gapColor);
+    const stickersL = faceArray(OR, {}, gapColor);
+    const stickersB = faceArray(BL, {}, gapColor);
+    const stickersD = faceArray(Y, {}, gapColor);
+
+    const faceGrid = {
+      display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gridTemplateRows: 'repeat(3,1fr)',
+      gap: '3px', background: gapColor, padding: '3px', borderRadius: '10px',
+      width: '220px', height: '220px', position: 'absolute'
+    };
+
+    const cube3DStyle = { position: 'relative', width: '220px', height: '220px', transformStyle: 'preserve-3d', transform: 'rotateX(-22deg) rotateY(38deg)' };
+    const face3DStyle_U = { ...faceGrid, transform: 'rotateX(90deg) translateZ(110px)' };
+    const face3DStyle_F = { ...faceGrid, transform: 'translateZ(110px)' };
+    const face3DStyle_R = { ...faceGrid, transform: 'rotateY(90deg) translateZ(110px)' };
+
+    const mFaceGrid = { ...faceGrid, width: '150px', height: '150px', borderRadius: '8px' };
+    const mobileCube3DStyle = { position: 'relative', width: '150px', height: '150px', transformStyle: 'preserve-3d', transform: 'rotateX(-22deg) rotateY(38deg)' };
+    const mobileFace3DStyle_U = { ...mFaceGrid, transform: 'rotateX(90deg) translateZ(75px)' };
+    const mobileFace3DStyle_F = { ...mFaceGrid, transform: 'translateZ(75px)' };
+    const mobileFace3DStyle_R = { ...mFaceGrid, transform: 'rotateY(90deg) translateZ(75px)' };
+
+    const netFace = { display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gridTemplateRows: 'repeat(3,1fr)', gap: '3px', background: gapColor, padding: '3px', borderRadius: '8px', width: '96px', height: '96px' };
+
+    const toggleBtn = (active) => ({
+      border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px', fontWeight: 500,
+      padding: '6px 14px', borderRadius: '6px', background: active ? '#fff' : 'transparent',
+      color: active ? '#18181b' : '#71717a', boxShadow: active ? '0 1px 2px rgba(0,0,0,0.08)' : 'none'
+    });
+
+    const ruler = (height) => ({
+      appearance: 'none', width: '100%', height: height + 'px', background: 'transparent', cursor: 'pointer', outline: 'none',
+      backgroundImage: `repeating-linear-gradient(90deg, #d4d4d8 0 1px, transparent 1px 11px), repeating-linear-gradient(90deg, #a1a1aa 0 2px, transparent 2px 55px), linear-gradient(#e4e4e7, #e4e4e7)`,
+      backgroundSize: `100% ${Math.round(height * 0.4)}px, 100% ${Math.round(height * 0.75)}px, 100% 2px`,
+      backgroundRepeat: 'no-repeat, no-repeat, no-repeat',
+      backgroundPosition: 'bottom, bottom, bottom'
+    });
+
+    return {
+      shellStyle: { background: '#fff', border: '1px solid #e4e4e7', borderRadius: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)' },
+      counterText: '48,392,017',
+      isView3D, isView2D,
+      toggleGroupStyle: { display: 'inline-flex', gap: '2px', background: '#f4f4f5', padding: '3px', borderRadius: '9px' },
+      toggle2DStyle: toggleBtn(isView2D),
+      toggle3DStyle: toggleBtn(isView3D),
+      mobileToggleGroupStyle: { display: 'inline-flex', gap: '2px', background: '#f4f4f5', padding: '2px', borderRadius: '7px' },
+      mobileToggle2DStyle: { ...toggleBtn(false), fontSize: '11px', padding: '4px 9px' },
+      mobileToggle3DStyle: { ...toggleBtn(true), fontSize: '11px', padding: '4px 9px' },
+      setView2D: () => this.setState({ view: '2D' }),
+      setView3D: () => this.setState({ view: '3D' }),
+      stickersU, stickersF, stickersR, stickersL, stickersB, stickersD,
+      cube3DStyle, face3DStyle_U, face3DStyle_F, face3DStyle_R,
+      mobileCube3DStyle, mobileFace3DStyle_U, mobileFace3DStyle_F, mobileFace3DStyle_R,
+      netStyle: { display: 'grid', gridTemplateColumns: 'repeat(4,96px)', gridTemplateRows: 'repeat(3,96px)', gap: '10px' },
+      netFaceStyle_U: { ...netFace, gridColumn: '2', gridRow: '1' },
+      netFaceStyle_L: { ...netFace, gridColumn: '1', gridRow: '2' },
+      netFaceStyle_F: { ...netFace, gridColumn: '2', gridRow: '2' },
+      netFaceStyle_R: { ...netFace, gridColumn: '3', gridRow: '2' },
+      netFaceStyle_B: { ...netFace, gridColumn: '4', gridRow: '2' },
+      netFaceStyle_D: { ...netFace, gridColumn: '2', gridRow: '3' },
+      sliderVal: this.state.slider,
+      onSlider: (e) => this.setState({ slider: Number(e.target.value) }),
+      rulerWrapStyle: { marginTop: '16px', padding: '14px 20px', background: '#fff', border: '1px solid #e4e4e7', borderRadius: '14px', boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)' },
+      sliderStyle: ruler(28),
+      mobileRulerWrapStyle: { margin: '0 16px 24px', padding: '10px 14px', background: '#fff', border: '1px solid #e4e4e7', borderRadius: '12px', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' },
+      mobileSliderStyle: ruler(20)
+    };
+  }
+}
+</script>
+</body>
+</html>
