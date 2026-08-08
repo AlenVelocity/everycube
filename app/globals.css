@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  height: 100dvh;
+  overscroll-behavior: none;
+  background: #fafafa;
+  color: #18181b;
+}
+
+/* The ruler slider's native input is invisible (custom tick/needle layers
+   render underneath); widen its thumb so the whole track drags nicely. */
+input[type="range"].peer::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 36px;
+}
+
+input[type="range"].peer::-moz-range-thumb {
+  width: 24px;
+  height: 36px;
+  border: none;
+}
