@@ -241,7 +241,10 @@ export default function CubeViewport3D({
         rotateSpeed={0.7}
         // One-finger touch is reserved for scrolling through permutations
         // (useScrollIndex); only a two-finger drag rotates the cube.
-        touches={{ ONE: undefined as unknown as THREE.TOUCH, TWO: THREE.TOUCH.ROTATE }}
+        // three-stdlib's OrbitControls has no plain ROTATE case for
+        // touches.TWO (only DOLLY_PAN/DOLLY_ROTATE) - DOLLY_ROTATE with
+        // enableZoom off degrades to pure rotate.
+        touches={{ ONE: undefined as unknown as THREE.TOUCH, TWO: THREE.TOUCH.DOLLY_ROTATE }}
       />
     </Canvas>
   );
