@@ -5,6 +5,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Credits from "@/components/Credits";
 import CubeViewport2D from "@/components/CubeViewport2D";
 import FxToggle from "@/components/FxToggle";
+import NotationInput from "@/components/NotationInput";
+import NotationToggle from "@/components/NotationToggle";
 import PatternsToggle from "@/components/PatternsToggle";
 import PermutationCounter from "@/components/PermutationCounter";
 import RulerSlider from "@/components/RulerSlider";
@@ -12,6 +14,7 @@ import StepToggle from "@/components/StepToggle";
 import ViewToggle, { type ViewMode } from "@/components/ViewToggle";
 import { clampIndex } from "@/lib/cubeMath";
 import { stickersForIndex } from "@/lib/cubeState";
+import { resolveAlgorithm } from "@/lib/notation";
 import { useScrollIndex } from "@/lib/useScrollIndex";
 
 const CubeViewport3D = dynamic(
@@ -42,41 +45,78 @@ function viewFromSearch(): ViewMode | null {
   return null;
 }
 
+// ?alg=R+U+R%27+U%27 is the practical way to share a scramble: it's
+// human-readable in the URL bar itself, and re-running it through the
+// same verified move engine on load is more meaningful than restoring
+// a raw 20-digit index.
+function algorithmFromSearch(): { n: bigint; canonical: string } | null {
+  if (typeof window === "undefined") return null;
+  const alg = new URLSearchParams(window.location.search).get("alg");
+  if (!alg) return null;
+  try {
+    return resolveAlgorithm(alg);
+  } catch {
+    return null;
+  }
+}
+
 export default function Page() {
-  const [n, setN] = useState<bigint>(0n);
+  const [n, setNRaw] = useState<bigint>(0n);
   const [view, setView] = useState<ViewMode>("3D");
   const [fx, setFx] = useState(false);
   const [step, setStep] = useState(500);
   const [showPatterns, setShowPatterns] = useState(true);
+  const [showNotation, setShowNotation] = useState(false);
+  // The scramble notation that produced the current n, if any. Cleared
+  // by any other way of changing n (scroll, slider, typed number,
+  // pattern jump) so a shared link never claims a scramble that isn't
+  // actually what's on screen.
+  const [algorithm, setAlgorithm] = useState<string | null>(null);
   const mainRef = useRef<HTMLDivElement>(null);
 
-  const updateN = useCallback(
-    (update: (n: bigint) => bigint) => setN((prev) => update(prev)),
-    []
-  );
+  const setN = useCallback((next: bigint) => {
+    setAlgorithm(null);
+    setNRaw(next);
+  }, []);
+  const updateN = useCallback((update: (n: bigint) => bigint) => {
+    setAlgorithm(null);
+    setNRaw((prev) => update(prev));
+  }, []);
+  const applyNotation = useCallback((next: bigint, canonical: string) => {
+    setAlgorithm(canonical || null);
+    setNRaw(next);
+  }, []);
   useScrollIndex(mainRef, updateN, step);
 
   useEffect(() => {
-    const fromHash = indexFromHash();
-    if (fromHash !== null) setN(fromHash);
+    const fromAlgorithm = algorithmFromSearch();
+    if (fromAlgorithm) {
+      setAlgorithm(fromAlgorithm.canonical || null);
+      setNRaw(fromAlgorithm.n);
+      setShowNotation(true);
+    } else {
+      const fromHash = indexFromHash();
+      if (fromHash !== null) setNRaw(fromHash);
+    }
     const fromView = viewFromSearch();
     if (fromView !== null) setView(fromView);
   }, []);
 
-  // Shareable URLs: keep ?view= and #<n> in sync (debounced so scrolling
-  // doesn't hammer the history API). Both are written together so
-  // neither effect clobbers the other's part of the URL.
+  // Shareable URLs: keep ?view=, #<n> (or &alg= in place of the hash
+  // when the state came from typed notation) in sync, debounced so
+  // scrolling doesn't hammer the history API. Written together so
+  // neither part clobbers the other.
   useEffect(() => {
     const t = setTimeout(() => {
-      const hash = n === 0n ? "" : `#${n + 1n}`;
-      window.history.replaceState(
-        null,
-        "",
-        `?view=${view.toLowerCase()}${hash}`
-      );
+      const tail = algorithm
+        ? `&alg=${encodeURIComponent(algorithm)}`
+        : n === 0n
+          ? ""
+          : `#${n + 1n}`;
+      window.history.replaceState(null, "", `?view=${view.toLowerCase()}${tail}`);
     }, 300);
     return () => clearTimeout(t);
-  }, [n, view]);
+  }, [n, view, algorithm]);
 
   const stickers = useMemo(() => stickersForIndex(n), [n]);
 
@@ -99,6 +139,7 @@ export default function Page() {
         <div className="flex flex-wrap items-center gap-1.5">
           <FxToggle on={fx} onChange={setFx} />
           <PatternsToggle on={showPatterns} onChange={setShowPatterns} />
+          <NotationToggle on={showNotation} onChange={setShowNotation} />
           <ViewToggle view={view} onChange={setView} />
           <StepToggle step={step} onChange={setStep} />
         </div>
@@ -114,12 +155,14 @@ export default function Page() {
         <div className="flex items-center gap-2">
           <FxToggle on={fx} onChange={setFx} />
           <PatternsToggle on={showPatterns} onChange={setShowPatterns} />
+          <NotationToggle on={showNotation} onChange={setShowNotation} />
           <ViewToggle view={view} onChange={setView} />
         </div>
         <StepToggle step={step} onChange={setStep} />
       </div>
 
-      <div className="absolute bottom-6 left-1/2 w-[min(560px,calc(100vw-3rem))] -translate-x-1/2 sm:bottom-8">
+      <div className="absolute bottom-6 left-1/2 flex w-[min(560px,calc(100vw-3rem))] -translate-x-1/2 flex-col gap-2 sm:bottom-8">
+        {showNotation && <NotationInput onApply={applyNotation} />}
         <RulerSlider n={n} onChange={setN} showPatterns={showPatterns} />
       </div>
     </main>

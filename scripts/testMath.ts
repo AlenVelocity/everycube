@@ -13,7 +13,11 @@ import {
   unrankEdgeOri,
   unrankEdgePerm,
 } from "../lib/cubeMath";
-import { cubieStateFromStickers, stickersForIndex } from "../lib/cubeState";
+import {
+  cubieStateFromStickers,
+  indexFromCubieState,
+  stickersForIndex,
+} from "../lib/cubeState";
 import {
   CUBIE_STICKERS,
   FACE_NORMAL,
@@ -25,6 +29,7 @@ import {
 } from "../lib/cubiePlacement";
 import { applyAlgorithm, applyMove } from "../lib/cubeMoves";
 import { FAMOUS_PATTERNS } from "../lib/patterns";
+import { indexFromAlgorithm, validateAlgorithm, NotationError } from "../lib/notation";
 
 let failures = 0;
 function check(name: string, ok: boolean, detail?: string) {
@@ -179,6 +184,37 @@ check(
   "famous-patterns-in-range",
   FAMOUS_PATTERNS.every((p) => p.n >= 0n && p.n < TOTAL)
 );
+
+// 10. Notation input: valid algorithms resolve to the right index,
+// invalid tokens are rejected with a NotationError (not silently
+// mis-parsed), and a well-known cubing fact ("sexy move" R U R' U' has
+// order 6) cross-checks the whole notation -> move-engine -> ranking
+// pipeline end to end.
+{
+  check("notation-empty-is-solved", indexFromAlgorithm("") === 0n);
+  check(
+    "notation-matches-direct-move",
+    indexFromAlgorithm("R") ===
+      indexFromCubieState(cubieStateFromStickers(applyMove(stickersForIndex(0n), 1, 1)))
+  );
+
+  {
+    let cur = stickersForIndex(0n);
+    for (let i = 0; i < 6; i++) cur = applyAlgorithm(cur, "R U R' U'");
+    check(
+      "sexy-move-order-six",
+      indexFromCubieState(cubieStateFromStickers(cur)) === 0n
+    );
+  }
+
+  let threw = false;
+  try {
+    validateAlgorithm("R U M2 F");
+  } catch (e) {
+    threw = e instanceof NotationError;
+  }
+  check("notation-rejects-unsupported-move", threw);
+}
 
 if (failures === 0) console.log("All math tests passed.");
 else process.exit(1);
