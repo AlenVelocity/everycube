@@ -27,7 +27,7 @@ export function validateAlgorithm(input: string): string[] {
   for (const tok of tokens) {
     if (!MOVE_RE.test(tok)) {
       throw new NotationError(
-        `"${tok}" isn't a supported move — use U D L R F B, optionally with 2 or '`
+        `"${tok}" is not a supported move. Please use U D L R F B, optionally with 2 or '`
       );
     }
   }
