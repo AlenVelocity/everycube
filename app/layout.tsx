@@ -6,7 +6,7 @@ const inter = Inter({ subsets: ["latin"], display: "swap" });
 
 const TITLE = "Every Cube";
 const DESCRIPTION =
-  "Scroll through all 43,252,003,274,489,856,000 reachable Rubik's Cube permutations, rendered live as a 3D cube. Every state has a number, and every number is a shareable link.";
+  "Scroll through all 43,252,003,274,489,856,000 reachable Rubik's Cube permutations.";
 
 export const metadata: Metadata = {
   title: TITLE,
