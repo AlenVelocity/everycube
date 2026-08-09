@@ -13,8 +13,11 @@ const MOVE_RE = /^[UDLRFB](2|')?$/;
 export class NotationError extends Error {}
 
 // Curly/smart quotes (common on mobile keyboards) count as a prime.
+// Parentheses are grouping only (e.g. "(R U R' U') R' F ..."), so they're
+// dropped rather than rejected — grouping doesn't change what the moves
+// resolve to, only how a human reads the algorithm.
 function sanitize(input: string): string {
-  return input.trim().replace(/[’‘]/g, "'").toUpperCase();
+  return input.trim().replace(/[’‘]/g, "'").replace(/[()]/g, "").toUpperCase();
 }
 
 // An empty/blank input is treated as "no moves" (resolves to solved)

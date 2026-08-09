@@ -214,6 +214,13 @@ check(
     threw = e instanceof NotationError;
   }
   check("notation-rejects-unsupported-move", threw);
+
+  // Parentheses are grouping only and are stripped, not rejected.
+  check(
+    "notation-ignores-parentheses",
+    indexFromAlgorithm("(R U R' U') R' F R2 U' R' U' R U R' F'") ===
+      indexFromAlgorithm("R U R' U' R' F R2 U' R' U' R U R' F'")
+  );
 }
 
 if (failures === 0) console.log("All math tests passed.");
