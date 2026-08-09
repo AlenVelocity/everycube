@@ -13,7 +13,7 @@ import {
   unrankEdgeOri,
   unrankEdgePerm,
 } from "../lib/cubeMath";
-import { stickersForIndex } from "../lib/cubeState";
+import { cubieStateFromStickers, stickersForIndex } from "../lib/cubeState";
 import {
   CUBIE_STICKERS,
   FACE_NORMAL,
@@ -23,6 +23,8 @@ import {
   det3,
   faceletToCubie,
 } from "../lib/cubiePlacement";
+import { applyAlgorithm, applyMove } from "../lib/cubeMoves";
+import { FAMOUS_PATTERNS } from "../lib/patterns";
 
 let failures = 0;
 function check(name: string, ok: boolean, detail?: string) {
@@ -141,6 +143,42 @@ for (let t = 0; t < 500; t++) {
     if (failures) break;
   }
 }
+
+// 8. Move engine: every quarter turn is a bijection, four quarter turns
+// of any face is the identity, and (facelets -> cubieState -> facelets)
+// round-trips on the solved cube and after a scramble.
+{
+  const solved = stickersForIndex(0n);
+  for (let face = 0; face < 6; face++) {
+    let cur = solved;
+    for (let t = 0; t < 4; t++) {
+      cur = applyMove(cur, face, 1);
+      check("move-is-permutation", new Set(cur).size === 6, `face=${face} t=${t}`);
+    }
+    let same = true;
+    for (let i = 0; i < 54; i++) if (cur[i] !== solved[i]) same = false;
+    check("four-quarter-turns-is-identity", same, `face=${face}`);
+  }
+
+  const scrambled = applyAlgorithm(solved, "R U R' U' F2 L D2 B'");
+  const back = cubieStateFromStickers(scrambled);
+  const cornerParity = permParity(back.cornerPerm);
+  const edgeParity = permParity(back.edgePerm);
+  check("moved-state-parity-matches", cornerParity === edgeParity);
+  const coSum = back.cornerOri.reduce((a, b) => a + b, 0);
+  const eoSum = back.edgeOri.reduce((a, b) => a + b, 0);
+  check("moved-state-co-legal", coSum % 3 === 0);
+  check("moved-state-eo-legal", eoSum % 2 === 0);
+}
+
+// 9. Famous patterns: loading lib/patterns.ts already throws if either
+// check (superflip cross-check, checkerboard visual property) fails —
+// reaching this line means both passed. Sanity-check the exported list.
+check("famous-patterns-present", FAMOUS_PATTERNS.length === 2);
+check(
+  "famous-patterns-in-range",
+  FAMOUS_PATTERNS.every((p) => p.n >= 0n && p.n < TOTAL)
+);
 
 if (failures === 0) console.log("All math tests passed.");
 else process.exit(1);

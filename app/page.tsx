@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Credits from "@/components/Credits";
 import CubeViewport2D from "@/components/CubeViewport2D";
 import FxToggle from "@/components/FxToggle";
+import PatternsToggle from "@/components/PatternsToggle";
 import PermutationCounter from "@/components/PermutationCounter";
 import RulerSlider from "@/components/RulerSlider";
 import StepToggle from "@/components/StepToggle";
@@ -37,6 +38,7 @@ export default function Page() {
   const [view, setView] = useState<ViewMode>("3D");
   const [fx, setFx] = useState(false);
   const [step, setStep] = useState(500);
+  const [showPatterns, setShowPatterns] = useState(true);
   const mainRef = useRef<HTMLDivElement>(null);
 
   const updateN = useCallback(
@@ -79,6 +81,7 @@ export default function Page() {
         <Credits />
         <div className="flex flex-wrap items-center gap-1.5">
           <FxToggle on={fx} onChange={setFx} />
+          <PatternsToggle on={showPatterns} onChange={setShowPatterns} />
           <ViewToggle view={view} onChange={setView} />
           <StepToggle step={step} onChange={setStep} />
         </div>
@@ -93,13 +96,14 @@ export default function Page() {
       <div className="hidden sm:flex sm:absolute sm:right-8 sm:top-7 sm:flex-col sm:items-end sm:gap-2">
         <div className="flex items-center gap-2">
           <FxToggle on={fx} onChange={setFx} />
+          <PatternsToggle on={showPatterns} onChange={setShowPatterns} />
           <ViewToggle view={view} onChange={setView} />
         </div>
         <StepToggle step={step} onChange={setStep} />
       </div>
 
       <div className="absolute bottom-6 left-1/2 w-[min(560px,calc(100vw-3rem))] -translate-x-1/2 sm:bottom-8">
-        <RulerSlider n={n} onChange={setN} />
+        <RulerSlider n={n} onChange={setN} showPatterns={showPatterns} />
       </div>
     </main>
   );

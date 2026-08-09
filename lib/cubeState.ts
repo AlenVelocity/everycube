@@ -30,7 +30,7 @@ export const FACE_HEX: readonly string[] = [
 ];
 
 // Corners: URF, UFL, ULB, UBR, DFR, DLF, DBL, DRB
-const CORNER_FACELET: readonly number[][] = [
+export const CORNER_FACELET: readonly number[][] = [
   [8, 9, 20],
   [6, 18, 38],
   [0, 36, 47],
@@ -54,7 +54,7 @@ export const CORNER_COLOR: readonly Face[][] = [
 ];
 
 // Edges: UR, UF, UL, UB, DR, DF, DL, DB, FR, FL, BL, BR
-const EDGE_FACELET: readonly number[][] = [
+export const EDGE_FACELET: readonly number[][] = [
   [5, 10],
   [7, 19],
   [3, 37],
@@ -134,4 +134,42 @@ export function stickersForIndex(n: bigint): Uint8Array {
   }
 
   return f;
+}
+
+// Inverse of stickersForIndex's placement step: given a legal 54-facelet
+// array, recover which cubie sits in each slot and how it's twisted.
+// Used to rank the result of a simulated move sequence (see cubeMoves.ts
+// and patterns.ts) — inverts the exact equations stickersForIndex writes
+// (f[FACELET[slot][(k+ori)%n]] = COLOR[cubie][k]) by search over cubie
+// identity and orientation offset.
+export function cubieStateFromStickers(f: Uint8Array): CubieState {
+  const cornerPerm = new Array(8).fill(-1);
+  const cornerOri = new Array(8).fill(0);
+  for (let s = 0; s < 8; s++) {
+    const colors = CORNER_FACELET[s].map((idx) => f[idx]);
+    for (let j = 0; j < 8; j++) {
+      for (let o = 0; o < 3; o++) {
+        if ([0, 1, 2].every((k) => CORNER_COLOR[j][k] === colors[(k + o) % 3])) {
+          cornerPerm[s] = j;
+          cornerOri[s] = o;
+        }
+      }
+    }
+  }
+
+  const edgePerm = new Array(12).fill(-1);
+  const edgeOri = new Array(12).fill(0);
+  for (let s = 0; s < 12; s++) {
+    const colors = EDGE_FACELET[s].map((idx) => f[idx]);
+    for (let j = 0; j < 12; j++) {
+      for (let o = 0; o < 2; o++) {
+        if ([0, 1].every((k) => EDGE_COLOR[j][k] === colors[(k + o) % 2])) {
+          edgePerm[s] = j;
+          edgeOri[s] = o;
+        }
+      }
+    }
+  }
+
+  return { cornerPerm, cornerOri, edgePerm, edgeOri };
 }
