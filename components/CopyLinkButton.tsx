@@ -52,9 +52,7 @@ export default function CopyLinkButton({
     <button
       type="button"
       onClick={copy}
-      title={
-        algorithm ? "Copy link to this scramble" : "Copy shareable link"
-      }
+      title={algorithm ? "Copy link to this scramble" : "Copy shareable link"}
       aria-label="Copy shareable link"
       className="inline-flex h-6 shrink-0 items-center gap-1 self-center rounded-md px-1.5 text-[10px] font-medium text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600 sm:h-7 sm:text-[11px]"
     >

@@ -2,7 +2,11 @@
 // reached by applying it to the solved cube, via the verified move
 // engine in cubeMoves.ts.
 import { applyAlgorithm } from "./cubeMoves";
-import { cubieStateFromStickers, indexFromCubieState, stickersForIndex } from "./cubeState";
+import {
+  cubieStateFromStickers,
+  indexFromCubieState,
+  stickersForIndex,
+} from "./cubeState";
 
 // One face letter, optionally followed by 2 (double turn) or ' (prime).
 // Wide/slice/rotation moves (r, M, x, ...) aren't supported by the move
@@ -49,7 +53,10 @@ export function resolveAlgorithm(input: string): ResolvedAlgorithm {
   const tokens = validateAlgorithm(input);
   const canonical = tokens.join(" ");
   const facelets = applyAlgorithm(stickersForIndex(0n), canonical);
-  return { n: indexFromCubieState(cubieStateFromStickers(facelets)), canonical };
+  return {
+    n: indexFromCubieState(cubieStateFromStickers(facelets)),
+    canonical,
+  };
 }
 
 export function indexFromAlgorithm(input: string): bigint {

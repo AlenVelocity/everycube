@@ -15,11 +15,7 @@ const NET_FACES: { base: number; col: number; row: number }[] = [
   { base: 27, col: 2, row: 3 }, // D
 ];
 
-export default function CubeViewport2D({
-  stickers,
-}: {
-  stickers: Uint8Array;
-}) {
+export default function CubeViewport2D({ stickers }: { stickers: Uint8Array }) {
   return (
     <div className="absolute inset-0 flex items-center justify-center">
       <div

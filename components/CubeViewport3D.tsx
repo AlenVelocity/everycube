@@ -123,7 +123,9 @@ function Cubies({ n, fx }: { n: bigint; fx: boolean }) {
     const a = anim.current!;
     const fxOn = fxRef.current;
     const delta =
-      targetN > lastN.current ? targetN - lastN.current : lastN.current - targetN;
+      targetN > lastN.current
+        ? targetN - lastN.current
+        : lastN.current - targetN;
     lastN.current = targetN;
     const newP = next.map((p) => new THREE.Vector3(...p.position));
     const newQ = next.map((p) => toQuaternion(p.rotation));
@@ -214,13 +216,7 @@ function Cubies({ n, fx }: { n: bigint; fx: boolean }) {
   );
 }
 
-export default function CubeViewport3D({
-  n,
-  fx,
-}: {
-  n: bigint;
-  fx: boolean;
-}) {
+export default function CubeViewport3D({ n, fx }: { n: bigint; fx: boolean }) {
   return (
     <Canvas
       className="!absolute inset-0"
@@ -244,7 +240,10 @@ export default function CubeViewport3D({
         // three-stdlib's OrbitControls has no plain ROTATE case for
         // touches.TWO (only DOLLY_PAN/DOLLY_ROTATE) - DOLLY_ROTATE with
         // enableZoom off degrades to pure rotate.
-        touches={{ ONE: undefined as unknown as THREE.TOUCH, TWO: THREE.TOUCH.DOLLY_ROTATE }}
+        touches={{
+          ONE: undefined as unknown as THREE.TOUCH,
+          TWO: THREE.TOUCH.DOLLY_ROTATE,
+        }}
       />
     </Canvas>
   );

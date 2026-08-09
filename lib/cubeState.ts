@@ -124,12 +124,7 @@ export function indexFromCubieState(s: CubieState): bigint {
 
 // unrank(n) -> array of 54 face colors (values 0..5).
 export function stickersForIndex(n: bigint): Uint8Array {
-  const {
-    cornerPerm,
-    cornerOri,
-    edgePerm,
-    edgeOri,
-  } = cubieStateForIndex(n);
+  const { cornerPerm, cornerOri, edgePerm, edgeOri } = cubieStateForIndex(n);
 
   const f = new Uint8Array(54);
   for (let face = 0; face < 6; face++) f[CENTER_FACELET[face]] = face;
@@ -166,7 +161,9 @@ export function cubieStateFromStickers(f: Uint8Array): CubieState {
     const colors = CORNER_FACELET[s].map((idx) => f[idx]);
     for (let j = 0; j < 8; j++) {
       for (let o = 0; o < 3; o++) {
-        if ([0, 1, 2].every((k) => CORNER_COLOR[j][k] === colors[(k + o) % 3])) {
+        if (
+          [0, 1, 2].every((k) => CORNER_COLOR[j][k] === colors[(k + o) % 3])
+        ) {
           cornerPerm[s] = j;
           cornerOri[s] = o;
         }

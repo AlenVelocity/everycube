@@ -59,7 +59,14 @@ const QUARTER_PERMS = Array.from({ length: 6 }, (_, f) =>
   buildQuarterPermutation(f)
 );
 
-const FACE_LETTER: Record<string, number> = { U: 0, R: 1, F: 2, D: 3, L: 4, B: 5 };
+const FACE_LETTER: Record<string, number> = {
+  U: 0,
+  R: 1,
+  F: 2,
+  D: 3,
+  L: 4,
+  B: 5,
+};
 
 export function applyMove(
   facelets: Uint8Array,

@@ -18,61 +18,59 @@ const FACE: string[][] = [
 
 export default function Image() {
   return new ImageResponse(
-    (
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 84,
+        background: "#fafafa",
+      }}
+    >
       <div
         style={{
-          width: "100%",
-          height: "100%",
           display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 84,
-          background: "#fafafa",
+          flexDirection: "column",
+          gap: 10,
+          padding: 10,
+          background: "#e4e4e7",
+          borderRadius: 28,
         }}
       >
+        {FACE.map((row, r) => (
+          <div key={r} style={{ display: "flex", gap: 10 }}>
+            {row.map((color, c) => (
+              <div
+                key={c}
+                style={{
+                  width: 92,
+                  height: 92,
+                  background: color,
+                  borderRadius: 14,
+                }}
+              />
+            ))}
+          </div>
+        ))}
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
         <div
           style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 10,
-            padding: 10,
-            background: "#e4e4e7",
-            borderRadius: 28,
+            fontSize: 84,
+            fontWeight: 700,
+            letterSpacing: "-0.02em",
+            color: "#18181b",
           }}
         >
-          {FACE.map((row, r) => (
-            <div key={r} style={{ display: "flex", gap: 10 }}>
-              {row.map((color, c) => (
-                <div
-                  key={c}
-                  style={{
-                    width: 92,
-                    height: 92,
-                    background: color,
-                    borderRadius: 14,
-                  }}
-                />
-              ))}
-            </div>
-          ))}
+          Every Cube
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-          <div
-            style={{
-              fontSize: 84,
-              fontWeight: 700,
-              letterSpacing: "-0.02em",
-              color: "#18181b",
-            }}
-          >
-            Every Cube
-          </div>
-          <div style={{ fontSize: 30, color: "#71717a", maxWidth: 620 }}>
-            All 43,252,003,274,489,856,000 Rubik&apos;s Cube permutations.
-          </div>
+        <div style={{ fontSize: 30, color: "#71717a", maxWidth: 620 }}>
+          All 43,252,003,274,489,856,000 Rubik&apos;s Cube permutations.
         </div>
       </div>
-    ),
+    </div>,
     size
   );
 }

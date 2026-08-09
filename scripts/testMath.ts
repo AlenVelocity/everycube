@@ -29,7 +29,11 @@ import {
 } from "../lib/cubiePlacement";
 import { applyAlgorithm, applyMove } from "../lib/cubeMoves";
 import { FAMOUS_PATTERNS } from "../lib/patterns";
-import { indexFromAlgorithm, validateAlgorithm, NotationError } from "../lib/notation";
+import {
+  indexFromAlgorithm,
+  validateAlgorithm,
+  NotationError,
+} from "../lib/notation";
 
 let failures = 0;
 function check(name: string, ok: boolean, detail?: string) {
@@ -53,7 +57,8 @@ check("total", TOTAL === 43252003274489856000n, TOTAL.toString());
 // 3. Round-trip: split/unrank then rank/combine returns the same index.
 function randomIndex(): bigint {
   let n = 0n;
-  for (let i = 0; i < 4; i++) n = (n << 16n) | BigInt(Math.floor(Math.random() * 65536));
+  for (let i = 0; i < 4; i++)
+    n = (n << 16n) | BigInt(Math.floor(Math.random() * 65536));
   return n % TOTAL;
 }
 
@@ -97,16 +102,21 @@ for (let t = 0; t < 500; t++) {
   const f = stickersForIndex(randomIndex());
   const counts = [0, 0, 0, 0, 0, 0];
   for (let i = 0; i < 54; i++) counts[f[i]]++;
-  check("nine-of-each", counts.every((c) => c === 9), counts.join(","));
+  check(
+    "nine-of-each",
+    counts.every((c) => c === 9),
+    counts.join(",")
+  );
   if (failures) break;
 }
 
 // 6. First 2048 indices only flip edge stickers in place (positions solved).
 {
   const solved = stickersForIndex(0n);
-  const cornerStickers = new Set(
-    [8, 9, 20, 6, 18, 38, 0, 36, 47, 2, 45, 11, 29, 26, 15, 27, 44, 24, 33, 53, 42, 35, 17, 51]
-  );
+  const cornerStickers = new Set([
+    8, 9, 20, 6, 18, 38, 0, 36, 47, 2, 45, 11, 29, 26, 15, 27, 44, 24, 33, 53,
+    42, 35, 17, 51,
+  ]);
   let ok = true;
   for (const n of [1n, 2n, 100n, 2047n]) {
     const f = stickersForIndex(n);
@@ -137,7 +147,11 @@ for (let t = 0; t < 500; t++) {
           (f) => f[0] === world[0] && f[1] === world[1] && f[2] === world[2]
         );
         const facelet = reverse.get(`${position.join(",")}|${face}`);
-        check("sticker-on-surface", facelet !== undefined, `n=${n} cubie=${id}`);
+        check(
+          "sticker-on-surface",
+          facelet !== undefined,
+          `n=${n} cubie=${id}`
+        );
         if (facelet === undefined) break outer;
         got[facelet] = st.face;
       }
@@ -158,7 +172,11 @@ for (let t = 0; t < 500; t++) {
     let cur = solved;
     for (let t = 0; t < 4; t++) {
       cur = applyMove(cur, face, 1);
-      check("move-is-permutation", new Set(cur).size === 6, `face=${face} t=${t}`);
+      check(
+        "move-is-permutation",
+        new Set(cur).size === 6,
+        `face=${face} t=${t}`
+      );
     }
     let same = true;
     for (let i = 0; i < 54; i++) if (cur[i] !== solved[i]) same = false;
@@ -195,7 +213,9 @@ check(
   check(
     "notation-matches-direct-move",
     indexFromAlgorithm("R") ===
-      indexFromCubieState(cubieStateFromStickers(applyMove(stickersForIndex(0n), 1, 1)))
+      indexFromCubieState(
+        cubieStateFromStickers(applyMove(stickersForIndex(0n), 1, 1))
+      )
   );
 
   {

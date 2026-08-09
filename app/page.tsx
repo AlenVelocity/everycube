@@ -18,10 +18,9 @@ import { stickersForIndex } from "@/lib/cubeState";
 import { resolveAlgorithm } from "@/lib/notation";
 import { useScrollIndex } from "@/lib/useScrollIndex";
 
-const CubeViewport3D = dynamic(
-  () => import("@/components/CubeViewport3D"),
-  { ssr: false }
-);
+const CubeViewport3D = dynamic(() => import("@/components/CubeViewport3D"), {
+  ssr: false,
+});
 
 // The hash carries the same 1-based number the counter displays, so a
 // shared link always matches what's on screen.
@@ -114,7 +113,11 @@ export default function Page() {
         : n === 0n
           ? ""
           : `#${n + 1n}`;
-      window.history.replaceState(null, "", `?view=${view.toLowerCase()}${tail}`);
+      window.history.replaceState(
+        null,
+        "",
+        `?view=${view.toLowerCase()}${tail}`
+      );
     }, 300);
     return () => clearTimeout(t);
   }, [n, view, algorithm]);
@@ -151,7 +154,7 @@ export default function Page() {
       </div>
 
       {/* Desktop/tablet: original left counter / right controls split. */}
-      <div className="hidden sm:flex sm:absolute sm:left-8 sm:top-7 sm:flex-col sm:items-start sm:gap-2">
+      <div className="hidden sm:absolute sm:left-8 sm:top-7 sm:flex sm:flex-col sm:items-start sm:gap-2">
         <PermutationCounter
           n={n}
           onCommit={setN}
@@ -160,7 +163,7 @@ export default function Page() {
         <Credits />
       </div>
 
-      <div className="hidden sm:flex sm:absolute sm:right-8 sm:top-7 sm:flex-col sm:items-end sm:gap-2">
+      <div className="hidden sm:absolute sm:right-8 sm:top-7 sm:flex sm:flex-col sm:items-end sm:gap-2">
         <div className="flex items-center gap-2">
           <FxToggle on={fx} onChange={setFx} />
           <PatternsToggle on={showPatterns} onChange={setShowPatterns} />
