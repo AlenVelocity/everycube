@@ -33,6 +33,15 @@ function indexFromHash(): bigint | null {
   }
 }
 
+// ?view=2d|3d makes the view mode part of the shareable URL too.
+function viewFromSearch(): ViewMode | null {
+  if (typeof window === "undefined") return null;
+  const v = new URLSearchParams(window.location.search).get("view");
+  if (v === "2d") return "2D";
+  if (v === "3d") return "3D";
+  return null;
+}
+
 export default function Page() {
   const [n, setN] = useState<bigint>(0n);
   const [view, setView] = useState<ViewMode>("3D");
@@ -50,16 +59,24 @@ export default function Page() {
   useEffect(() => {
     const fromHash = indexFromHash();
     if (fromHash !== null) setN(fromHash);
+    const fromView = viewFromSearch();
+    if (fromView !== null) setView(fromView);
   }, []);
 
-  // Shareable URLs: keep #<n> in sync (debounced so scrolling doesn't
-  // hammer the history API).
+  // Shareable URLs: keep ?view= and #<n> in sync (debounced so scrolling
+  // doesn't hammer the history API). Both are written together so
+  // neither effect clobbers the other's part of the URL.
   useEffect(() => {
     const t = setTimeout(() => {
-      window.history.replaceState(null, "", n === 0n ? " " : `#${n + 1n}`);
+      const hash = n === 0n ? "" : `#${n + 1n}`;
+      window.history.replaceState(
+        null,
+        "",
+        `?view=${view.toLowerCase()}${hash}`
+      );
     }, 300);
     return () => clearTimeout(t);
-  }, [n]);
+  }, [n, view]);
 
   const stickers = useMemo(() => stickersForIndex(n), [n]);
 
