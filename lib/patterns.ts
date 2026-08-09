@@ -10,27 +10,12 @@
 //    verified against the pattern's actual defining property: each face
 //    reads as two alternating colors in a checkerboard layout.
 import {
-  combineIndex,
-  rankCornerOri,
-  rankEdgeOri,
-  rankEdgePerm,
-  rankPerm,
-} from "./cubeMath";
-import {
   CubieState,
   cubieStateFromStickers,
+  indexFromCubieState,
   stickersForIndex,
 } from "./cubeState";
 import { applyAlgorithm } from "./cubeMoves";
-
-function indexFromCubieState(s: CubieState): bigint {
-  return combineIndex({
-    eo: rankEdgeOri(s.edgeOri),
-    co: rankCornerOri(s.cornerOri),
-    cp: rankPerm(s.cornerPerm),
-    ep: rankEdgePerm(s.edgePerm),
-  });
-}
 
 function isFaceCheckerboard(f: Uint8Array, base: number): boolean {
   const even = [0, 2, 4, 6, 8].map((k) => f[base + k]);

@@ -1,5 +1,10 @@
 import {
+  combineIndex,
   permParity,
+  rankCornerOri,
+  rankEdgeOri,
+  rankEdgePerm,
+  rankPerm,
   splitIndex,
   unrankCornerOri,
   unrankCornerPerm,
@@ -103,6 +108,18 @@ export function cubieStateForIndex(n: bigint): CubieState {
     edgePerm: unrankEdgePerm(ep, permParity(cornerPerm)),
     edgeOri: unrankEdgeOri(eo),
   };
+}
+
+// rank(cubieState) -> the index it came from. Inverse of
+// cubieStateForIndex; used anywhere a cube state is built by other
+// means (move simulation, direct construction) and needs its index.
+export function indexFromCubieState(s: CubieState): bigint {
+  return combineIndex({
+    eo: rankEdgeOri(s.edgeOri),
+    co: rankCornerOri(s.cornerOri),
+    cp: rankPerm(s.cornerPerm),
+    ep: rankEdgePerm(s.edgePerm),
+  });
 }
 
 // unrank(n) -> array of 54 face colors (values 0..5).
