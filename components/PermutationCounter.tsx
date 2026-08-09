@@ -20,9 +20,11 @@ const NUMBER_STYLE = { fontSize: "clamp(1.125rem, 4.8vw, 1.875rem)" };
 export default function PermutationCounter({
   n,
   onCommit,
+  action,
 }: {
   n: bigint;
   onCommit: (n: bigint) => void;
+  action?: React.ReactNode;
 }) {
   const [draft, setDraft] = useState<string | null>(null);
   const display = (n + 1n).toLocaleString("en-US");
@@ -43,36 +45,39 @@ export default function PermutationCounter({
       <div className="mb-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-zinc-400 [text-shadow:0_1px_2px_rgba(255,255,255,0.9)]">
         Permutation
       </div>
-      <div className={NUMBER_CLASSES} style={NUMBER_STYLE}>
-        #
-        {draft === null ? (
-          <button
-            type="button"
-            title="Click to edit"
-            onClick={() => setDraft((n + 1n).toString())}
-            className="cursor-text appearance-none rounded-sm border-0 bg-transparent p-0 text-left font-[inherit] tracking-[inherit] text-inherit [font-variant-numeric:inherit] [text-shadow:inherit] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-zinc-400"
-          >
-            {display}
-          </button>
-        ) : (
-          <input
-            autoFocus
-            onFocus={(e) => e.currentTarget.select()}
-            inputMode="numeric"
-            value={withCommas(draft.replace(/\D/g, ""))}
-            onChange={(e) => setDraft(e.target.value)}
-            onBlur={commit}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") commit();
-              if (e.key === "Escape") setDraft(null);
-            }}
-            aria-label="Permutation number"
-            className="m-0 border-0 bg-transparent p-0 font-[inherit] tracking-[inherit] text-inherit outline-none [font-variant-numeric:inherit] [text-shadow:inherit]"
-            style={{
-              width: `${Math.max(withCommas(draft.replace(/\D/g, "")).length, 1) + 0.5}ch`,
-            }}
-          />
-        )}
+      <div className="flex items-baseline gap-2">
+        <div className={NUMBER_CLASSES} style={NUMBER_STYLE}>
+          #
+          {draft === null ? (
+            <button
+              type="button"
+              title="Click to edit"
+              onClick={() => setDraft((n + 1n).toString())}
+              className="cursor-text appearance-none rounded-sm border-0 bg-transparent p-0 text-left font-[inherit] tracking-[inherit] text-inherit [font-variant-numeric:inherit] [text-shadow:inherit] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-zinc-400"
+            >
+              {display}
+            </button>
+          ) : (
+            <input
+              autoFocus
+              onFocus={(e) => e.currentTarget.select()}
+              inputMode="numeric"
+              value={withCommas(draft.replace(/\D/g, ""))}
+              onChange={(e) => setDraft(e.target.value)}
+              onBlur={commit}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") commit();
+                if (e.key === "Escape") setDraft(null);
+              }}
+              aria-label="Permutation number"
+              className="m-0 border-0 bg-transparent p-0 font-[inherit] tracking-[inherit] text-inherit outline-none [font-variant-numeric:inherit] [text-shadow:inherit]"
+              style={{
+                width: `${Math.max(withCommas(draft.replace(/\D/g, "")).length, 1) + 0.5}ch`,
+              }}
+            />
+          )}
+        </div>
+        {action}
       </div>
     </div>
   );

@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import CopyLinkButton from "@/components/CopyLinkButton";
 import Credits from "@/components/Credits";
 import CubeViewport2D from "@/components/CubeViewport2D";
 import FxToggle from "@/components/FxToggle";
@@ -134,7 +135,11 @@ export default function Page() {
       {/* Mobile: counter, then controls flowing below it — a long number
           and the toggles never compete for the same row. */}
       <div className="absolute left-4 right-4 top-4 flex flex-col items-start gap-2 sm:hidden">
-        <PermutationCounter n={n} onCommit={setN} />
+        <PermutationCounter
+          n={n}
+          onCommit={setN}
+          action={<CopyLinkButton n={n} view={view} algorithm={algorithm} />}
+        />
         <Credits />
         <div className="flex flex-wrap items-center gap-1.5">
           <FxToggle on={fx} onChange={setFx} />
@@ -147,7 +152,11 @@ export default function Page() {
 
       {/* Desktop/tablet: original left counter / right controls split. */}
       <div className="hidden sm:flex sm:absolute sm:left-8 sm:top-7 sm:flex-col sm:items-start sm:gap-2">
-        <PermutationCounter n={n} onCommit={setN} />
+        <PermutationCounter
+          n={n}
+          onCommit={setN}
+          action={<CopyLinkButton n={n} view={view} algorithm={algorithm} />}
+        />
         <Credits />
       </div>
 
