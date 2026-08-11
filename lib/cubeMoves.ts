@@ -50,7 +50,7 @@ function buildQuarterPermutation(faceIdx: number): number[] {
     const target = LOOKUP.get(`${newPos.join(",")}|${newFace}`);
     if (target === undefined)
       throw new Error("cubeMoves: move table build failed");
-    perm[target] = i;
+    perm[i] = target;
   }
   return perm;
 }
