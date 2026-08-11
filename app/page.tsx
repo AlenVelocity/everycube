@@ -88,7 +88,12 @@ export default function Page() {
   }, []);
   useScrollIndex(mainRef, updateN, step);
 
-  useEffect(() => {
+  // Reads the current URL (hash + search) and applies it to state. Used
+  // both on first load and whenever the URL changes out from under us —
+  // e.g. the user edits the hash by hand and hits enter, or navigates
+  // back/forward. Editing only the hash is a same-document navigation in
+  // browsers (no reload), so without this the app would silently ignore it.
+  const loadFromUrl = useCallback(() => {
     const fromAlgorithm = algorithmFromSearch();
     if (fromAlgorithm) {
       setAlgorithm(fromAlgorithm.canonical || null);
@@ -96,11 +101,24 @@ export default function Page() {
       setShowNotation(true);
     } else {
       const fromHash = indexFromHash();
-      if (fromHash !== null) setNRaw(fromHash);
+      if (fromHash !== null) {
+        setAlgorithm(null);
+        setNRaw(fromHash);
+      }
     }
     const fromView = viewFromSearch();
     if (fromView !== null) setView(fromView);
   }, []);
+
+  useEffect(() => {
+    loadFromUrl();
+    window.addEventListener("hashchange", loadFromUrl);
+    window.addEventListener("popstate", loadFromUrl);
+    return () => {
+      window.removeEventListener("hashchange", loadFromUrl);
+      window.removeEventListener("popstate", loadFromUrl);
+    };
+  }, [loadFromUrl]);
 
   // Shareable URLs: keep ?view=, #<n> (or &alg= in place of the hash
   // when the state came from typed notation) in sync, debounced so
